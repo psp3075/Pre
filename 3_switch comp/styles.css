@@ -1,10 +1,10 @@
-* {
-  box-sizing: border-box;
+body {
+  margin: 0;
 }
 
 main {
   width: 500px;
-  margin: 10px auto 0 auto;
+  margin: 5px auto 0 auto;
 }
 
 #search {
@@ -13,9 +13,9 @@ main {
 }
 
 #suggestion-box {
-  width: 100%;
-  border: 1px solid rgb(145, 115, 115);
+  border: 1px solid rgb(146, 167, 170);
   margin-top: 10px;
   min-height: 100px;
-  padding: 5px;
+  padding: 10px;
+  display: none;
 }

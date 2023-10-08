@@ -1,3 +1,10 @@
+import React, {
+  useState,
+  useRef,
+  useEffect,
+} from "https://esm.sh/react@18.2.0";
+import ReactDOM from "https://esm.sh/react-dom@18.2.0";
+
 // DUMMY Server
 const FAILURE_COUNT = 10;
 const LATENCY = 200;
@@ -36,59 +43,47 @@ function getSuggestions(text) {
   });
 }
 
-(function () {
-  const input = document.getElementById("search");
-  const suggestionBox = document.getElementById("suggestion-box");
+const App = () => {
+  const [searchQuery, setSearchQuery] = useState("");
+  const [SuggestionVisible, setSuggestionVisible] = useState(false);
+  const [listItems, setListItems] = useState([]);
 
-  const onFocus = () => {
-    suggestionBox.style.display = "block";
+  const handleChange = (e) => {
+    const { value } = e.target;
+    setSearchQuery(value);
+    fetchSuggestionData(value);
   };
 
-  const onBlur = (e) => {
-    if (e.target === input || e.target === suggestionBox) {
-      return;
-    }
-    suggestionBox.style.display = "none";
-  };
-
-  const onChange = (e) => {
-    processData(e.target.value);
-  };
-
-  const processData = async (value) => {
-    suggestionBox.innerHTML = "";
-    if (!value) {
-      return;
-    }
+  const fetchSuggestionData = async (query) => {
     try {
-      const response = await getSuggestions(value);
-      if (response.length > 0) {
-        const list = document.createElement("ul");
-        response.forEach((item) => {
-          const listItems = document.createElement("li");
-          listItems.style.cursor = "pointer";
-          listItems.innerText = item;
-          list.appendChild(listItems);
-        });
-        suggestionBox.innerHTML = "";
-        suggestionBox.appendChild(list);
-      }
+      let response = await getSuggestions(query);
+      setListItems(response);
     } catch (err) {
+      setListItems([]);
       console.error(err);
     }
   };
+  return (
+    <main className="App">
+      <input
+        type="text"
+        id="search"
+        name="search"
+        placeholder="search..."
+        onFocus={() => setSuggestionVisible(true)}
+        onBlur={() => setSuggestionVisible(false)}
+        onChange={handleChange}
+        value={searchQuery}
+      />
+      {SuggestionVisible && (
+        <div id="suggestion-box">
+          {listItems.map((item) => (
+            <li onClick={(e) => setSearchQuery(e)}>{item}</li>
+          ))}
+        </div>
+      )}
+    </main>
+  );
+};
 
-  const onClick = (e) => {
-    if (e.target === suggestionBox) {
-      return;
-    }
-    const text = e.target.innerText;
-    input.value = text;
-    input.focus();
-  };
-
-  input.addEventListener("focus", onFocus);
-  window.addEventListener("click", onBlur);
-  input.addEventListener("keyup", onChange);
-  suggestionBox.addEventListener("click", onClick, true);
-})();
+ReactDOM.render(<App />, document.getElementById("root"));
